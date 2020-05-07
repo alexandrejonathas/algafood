@@ -40,11 +40,14 @@ public class CadastroCozinhaIntegrationTests {
 	
 	@Test(expected = ConstraintViolationException.class)
 	public void deveFalharAoCadastrarCozinhaSemNome() {
-		//Cenário
+		try {
 		Cozinha cozinha = new Cozinha();
 		cozinha.setNome(null);
 		
-		cadastroCozinha.salvar(cozinha);		
+		cadastroCozinha.salvar(cozinha);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Test(expected = EntidadeEmUsoException.class)
