@@ -1,8 +1,11 @@
 package com.algaworks.algafood.domain.model;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -21,25 +24,29 @@ import javax.validation.constraints.PositiveOrZero;
 import javax.validation.groups.ConvertGroup;
 import javax.validation.groups.Default;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.algaworks.algafood.core.validation.Groups;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 public class Restaurante {
 
+	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private Long id;
 
-	//@NotNull
-	//@NotEmpty
 	@NotBlank
 	private String nome;
 
-	//@DecimalMin("0")
 	@PositiveOrZero
 	@Column(name = "taxa_frete")
 	private BigDecimal taxaFrete;
@@ -51,9 +58,20 @@ public class Restaurante {
 	@JoinColumn(name = "cozinha_id")
 	private Cozinha cozinha;
 	
-	@JsonIgnore
 	@Embedded
 	private Endereco endereco;
+	
+	private Boolean inativo = Boolean.FALSE;
+	
+	private Boolean aberto = Boolean.FALSE;
+	
+	@CreationTimestamp
+	@Column(name = "data_cadastro", nullable = false, columnDefinition = "datetime")
+	private OffsetDateTime dataCadastro;
+	
+	@UpdateTimestamp
+	@Column(name = "data_atualizacao", nullable = false, columnDefinition = "datetime")
+	private OffsetDateTime dataAtualizacao;	
 	
 	@OneToMany(mappedBy = "restaurante")
 	private List<Produto> produtos = new ArrayList<>();
@@ -61,87 +79,84 @@ public class Restaurante {
 	@ManyToMany
 	@JoinTable(name = "restaurante_forma_pagamento", 
 		joinColumns = @JoinColumn(name = "restaurante_id"), inverseJoinColumns = @JoinColumn(name = "forma_pagamento_id"))
-	private List<FormaPagamento> formasPagamento = new ArrayList<>();
-
-	public Long getId() {
-		return id;
+	private Set<FormaPagamento> formasPagamento = new HashSet<>();
+	
+	@ManyToMany
+	@JoinTable(name = "restaurante_usuario_responsavel",
+	        joinColumns = @JoinColumn(name = "restaurante_id"),
+	        inverseJoinColumns = @JoinColumn(name = "usuario_id"))
+	private Set<Usuario> responsaveis = new HashSet<>(); 	
+	
+	public void ativar() {
+		setInativo(false);
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void inativar() {
+		setInativo(true);
+	}
+	
+	public void abrir() {
+		setAberto(true);
 	}
 
-	public String getNome() {
-		return nome;
+	public void fechar() {
+		setAberto(false);
+	}	
+	
+	public boolean vincularFormaPagamento(FormaPagamento formaPagamento) {
+		return getFormasPagamento().add(formaPagamento);
+	}
+	
+	public boolean desvincularFormaPagamento(FormaPagamento formaPagamento) {
+		return getFormasPagamento().remove(formaPagamento);
+	}	
+	
+	public boolean desvincularResponsavel(Usuario usuario) {
+	    return getResponsaveis().remove(usuario);
 	}
 
-	public void setNome(String nome) {
-		this.nome = nome;
+	public boolean vincularResponsavel(Usuario usuario) {
+	    return getResponsaveis().add(usuario);
+	}
+	
+	public boolean aceitaFormaPagamento(FormaPagamento formaPagamento) {
+	    return getFormasPagamento().contains(formaPagamento);
 	}
 
-	public BigDecimal getTaxaFrete() {
-		return taxaFrete;
+	public boolean naoAceitaFormaPagamento(FormaPagamento formaPagamento) {
+	    return !aceitaFormaPagamento(formaPagamento);
+	}	
+	
+	public boolean isAberto() {
+	    return this.aberto;
 	}
 
-	public void setTaxaFrete(BigDecimal taxaFrete) {
-		this.taxaFrete = taxaFrete;
+	public boolean isFechado() {
+	    return !isAberto();
 	}
 
-	public Cozinha getCozinha() {
-		return cozinha;
+	public boolean isInativo() {
+	    return this.inativo;
 	}
 
-	public void setCozinha(Cozinha cozinha) {
-		this.cozinha = cozinha;
+	public boolean isAtivo() {
+		return !isInativo();
 	}
 
-	public Endereco getEndereco() {
-		return endereco;
+	public boolean aberturaPermitida() {
+	    return isAtivo() && isFechado();
 	}
+	
+	public boolean fechamentoPermitido() {
+	    return isAtivo() && isAberto();
+	}	
 
-	public void setEndereco(Endereco endereco) {
-		this.endereco = endereco;
-	}
-
-	public List<Produto> getProdutos() {
-		return produtos;
-	}
-
-	public void setProdutos(List<Produto> produtos) {
-		this.produtos = produtos;
-	}
-
-	public List<FormaPagamento> getFormasPagamento() {
-		return formasPagamento;
-	}
-
-	public void setFormasPagamento(List<FormaPagamento> formasPagamento) {
-		this.formasPagamento = formasPagamento;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Restaurante other = (Restaurante) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
+	public boolean ativacaoPermitida() {
+	    return isInativo();
+	}	
+	
+	public boolean inativacaoPermitida() {
+	    return isAtivo();
+	}	
+	
 }

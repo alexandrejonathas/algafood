@@ -1,0 +1,1 @@
+ALTER TABLE restaurante ADD inativo TINYINT(1) NOT NULL DEFAULT false;

@@ -1,0 +1,8 @@
+CREATE TABLE cidade (
+	id BIGINT NOT NULL AUTO_INCREMENT,
+	nome_cidade VARCHAR(60),
+	nome_estado VARCHAR(60),
+	
+	PRIMARY KEY(id)
+	
+)ENGINE=INNODB DEFAULT CHARSET=utf8;

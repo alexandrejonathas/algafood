@@ -1,5 +1,7 @@
 package com.algaworks.algafood.domain.service;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,13 +18,16 @@ public class CadastroEstadoService {
 	@Autowired
 	private EstadoRepository estadoRep;
 	
+	@Transactional
 	public Estado salvar(Estado estado) {
 		return estadoRep.save(estado);
 	}
 	
+	@Transactional
 	public void deletar(Long id) {
 		try {			
 			estadoRep.deleteById(id);
+			estadoRep.flush();
 		}catch (EmptyResultDataAccessException e) {
 			throw new EstadoNaoEncontradoException(id);
 		} catch (DataIntegrityViolationException e) {
