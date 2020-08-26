@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.algaworks.algafood.api.v1.assembler.CozinhaModelAssembler;
 import com.algaworks.algafood.api.v1.model.CozinhaModel;
 import com.algaworks.algafood.api.v1.openapi.controller.CozinhaControllerOpenApi;
+import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import com.algaworks.algafood.domain.service.CadastroCozinhaService;
@@ -45,6 +46,7 @@ public class CozinhaController implements CozinhaControllerOpenApi {
 	@Autowired
 	private PagedResourcesAssembler<Cozinha> pagedResourcesAssembler; 
 	
+	@CheckSecurity.Cozinhas.PodeConsultar
 	@GetMapping
 	public PagedModel<CozinhaModel> listar(Pageable pageable){
 		Page<Cozinha> cozinhasPage = cozinhaRep.findAll(pageable);
@@ -53,7 +55,8 @@ public class CozinhaController implements CozinhaControllerOpenApi {
 		
 		return pagedModel;
 	}
-	
+
+	@CheckSecurity.Cozinhas.PodeConsultar	
 	@GetMapping("/{cozinhaId}")
 	public ResponseEntity<?> buscar(@PathVariable Long cozinhaId) {
 		
@@ -66,12 +69,14 @@ public class CozinhaController implements CozinhaControllerOpenApi {
 		return ResponseEntity.ok(optional.get());
 	}
 	
+	@CheckSecurity.Cozinhas.PodeEditar
 	@PostMapping
 	public ResponseEntity<Cozinha> criar(@RequestBody @Valid Cozinha cozinha) {
 		Cozinha cozinhaSalva = cadastroCozinha.salvar(cozinha);
 		return ResponseEntity.status(HttpStatus.CREATED).body(cozinhaSalva);
 	}
 
+	@CheckSecurity.Cozinhas.PodeEditar	
 	@PutMapping("/{cozinhaId}")
 	public ResponseEntity<Cozinha> atualizar(@PathVariable Long cozinhaId, @RequestBody @Valid Cozinha cozinha) {		
 		Optional<Cozinha> optional = cozinhaRep.findById(cozinhaId);		
@@ -98,6 +103,7 @@ public class CozinhaController implements CozinhaControllerOpenApi {
 //		}
 //	}	
 
+	@CheckSecurity.Cozinhas.PodeEditar
 	@DeleteMapping("/{cozinhaId}")
 	@ResponseStatus(value = HttpStatus.NO_CONTENT)
 	public void deletar(@PathVariable Long cozinhaId) {

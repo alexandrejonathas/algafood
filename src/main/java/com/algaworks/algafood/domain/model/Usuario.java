@@ -52,4 +52,8 @@ public class Usuario {
 	    return getGrupos().add(grupo);
 	}	
 	
+	public boolean isNovo() {
+	    return getId() == null;
+	}	
+	
 }

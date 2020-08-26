@@ -2,6 +2,7 @@ package com.algaworks.algafood.api.exceptionhandler;
 
 public enum ProblemaTipo {
 
+	ACESSO_NEGADO("/acesso-negado", "Acesso negado"),
 	RECURSO_NAO_ENCONTRADO("Recurso não encontrado", "/recurso-nao-encontrado"),
 	ENTIDADE_EM_USO("Entidade em uso", "/entidade-em-uso"),
 	ERRO_NEGOCIO("Violação de regra de negócio", "/erro-negocio"),

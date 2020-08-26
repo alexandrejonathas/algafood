@@ -14,6 +14,8 @@ import com.algaworks.algafood.api.v1.AlgaLinksV1;
 import com.algaworks.algafood.api.v1.assembler.PermissaoModelAssembler;
 import com.algaworks.algafood.api.v1.model.PermissaoModel;
 import com.algaworks.algafood.api.v1.openapi.controller.GrupoPermissaoControllerOpenApi;
+import com.algaworks.algafood.core.security.AlgaSecurity;
+import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.model.Grupo;
 import com.algaworks.algafood.domain.service.CadastroGrupoService;
 
@@ -30,30 +32,39 @@ public class GrupoPermissaoController implements GrupoPermissaoControllerOpenApi
     @Autowired
     private AlgaLinksV1 algaLinksHelper;
     
+    @Autowired
+    private AlgaSecurity algaSecurity;    
+    
+    @CheckSecurity.UsuariosGruposPermissoes.PodeConsultar
     @GetMapping
     public CollectionModel<PermissaoModel> listar(@PathVariable Long grupoId) {
         Grupo grupo = cadastroGrupo.buscarOuFalhar(grupoId);
         
         CollectionModel<PermissaoModel> permissoesModel 
             = permissaoModelAssembler.toCollectionModel(grupo.getPermissoes())
-                .removeLinks()
-                .add(algaLinksHelper.linkToGrupoPermissoes(grupoId))
-                .add(algaLinksHelper.linkToGrupoPermissaoVincular(grupoId, "associar"));
+                .removeLinks();
         
-        permissoesModel.getContent().forEach(permissaoModel -> {
-            permissaoModel.add(algaLinksHelper.linkToGrupoPermissaoDesvincular(
-                    grupoId, permissaoModel.getId(), "desassociar"));
-        });
+        permissoesModel.add(algaLinksHelper.linkToGrupoPermissoes(grupoId));
         
+        if (algaSecurity.podeEditarUsuariosGruposPermissoes()) {
+	        permissoesModel.add(algaLinksHelper.linkToGrupoPermissaoVincular(grupoId, "associar"));
+	        
+	        permissoesModel.getContent().forEach(permissaoModel -> {
+	            permissaoModel.add(algaLinksHelper.linkToGrupoPermissaoDesvincular(
+	                    grupoId, permissaoModel.getId(), "desassociar"));
+	        });
+        }
         return permissoesModel;
     }
     
+    @CheckSecurity.UsuariosGruposPermissoes.PodeEditar
     @DeleteMapping("/{permissaoId}")
     public ResponseEntity<Void> desvincular(@PathVariable Long grupoId, @PathVariable Long permissaoId) {
         cadastroGrupo.desvincularPermissao(grupoId, permissaoId);
         return ResponseEntity.noContent().build();
     }
     
+    @CheckSecurity.UsuariosGruposPermissoes.PodeEditar
     @PutMapping("/{permissaoId}")
     public ResponseEntity<Void> vincular(@PathVariable Long grupoId, @PathVariable Long permissaoId) {
         cadastroGrupo.vincularPermissao(grupoId, permissaoId);

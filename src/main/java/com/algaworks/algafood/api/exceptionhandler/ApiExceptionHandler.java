@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -41,6 +42,19 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	@Autowired
 	private MessageSource messageSource;
 
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex, WebRequest request){
+		HttpStatus status = HttpStatus.FORBIDDEN;
+		ProblemaTipo problemaTipo = ProblemaTipo.ACESSO_NEGADO;
+		String detail = ex.getMessage();
+		
+		Problem problema = criarProblemaBuilder(status, problemaTipo, detail)
+				.message("Você não possui permissão para executar essa operação.")
+				.build();
+
+		return handleExceptionInternal(ex, problema, new HttpHeaders(), status, request);		
+	}
+	
 	@ExceptionHandler(EntidadeNaoEncontradaException.class)
 	public ResponseEntity<?> tratarEntidadeNaoEncontradaException(EntidadeNaoEncontradaException ex,
 			WebRequest request) {
@@ -169,7 +183,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 		return tratarValidacaoIterna(ex, ex.getBindingResult(), headers, status, request);
 	}
-
+	
 	/**
 	 * Exemplo de corpo de resposta com erro, usando Problem Details for HTTP APIs
 	 * 

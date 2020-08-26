@@ -28,6 +28,7 @@ import com.algaworks.algafood.api.v1.model.RestauranteBasicoModel;
 import com.algaworks.algafood.api.v1.model.RestauranteModel;
 import com.algaworks.algafood.api.v1.model.input.RestauranteInput;
 import com.algaworks.algafood.api.v1.openapi.controller.RestauranteControllerOpenApi;
+import com.algaworks.algafood.core.security.CheckSecurity;
 import com.algaworks.algafood.domain.exception.CidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
@@ -63,12 +64,14 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 	@Autowired
 	private RestauranteInputDisassembler restauranteInputDisassembler;
 
+	@CheckSecurity.Restaurantes.PodeConsultar
 	@GetMapping
 	@Override
 	public CollectionModel<RestauranteBasicoModel> listar() {
 		return restauranteBasicoModelAssembler.toCollectionModel(restauranteRep.findAll());
 	}
-	
+
+	@CheckSecurity.Restaurantes.PodeConsultar	
 	@GetMapping(params = "projecao=apenas-nome")
 	@Override
 	public CollectionModel<RestauranteApenasNomeModel> listarApenasNomes() {
@@ -76,6 +79,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
                 .toCollectionModel(restauranteRep.findAll());
 	}	
 	
+	@CheckSecurity.Restaurantes.PodeConsultar	
 	@GetMapping("/{restauranteId}")
 	@Override
 	public ResponseEntity<RestauranteModel> buscar(@PathVariable Long restauranteId) {
@@ -88,6 +92,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 		return ResponseEntity.ok(restauranteModelAssembler.toModel(restaurante.get()));
 	}
 	
+	@CheckSecurity.Restaurantes.PodeGerenciarCadastro	
 	@PostMapping
 	@Override
 	public ResponseEntity<?> criar(@RequestBody @Valid RestauranteInput restauranteInput){
@@ -100,7 +105,8 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
+	@CheckSecurity.Restaurantes.PodeGerenciarCadastro	
 	@PutMapping("/{restauranteId}")
 	@Override
 	public RestauranteModel atualizar(@PathVariable Long restauranteId, @RequestBody @Valid RestauranteInput restauranteInput){
@@ -119,6 +125,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 		}
 	}
 	
+	@CheckSecurity.Restaurantes.PodeGerenciarCadastro	
 	@DeleteMapping("/{restauranteId}")
 	@Override
 	public ResponseEntity<?> deletar(@PathVariable Long restauranteId) {
@@ -132,6 +139,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 		}
 	}
 	
+	@CheckSecurity.Restaurantes.PodeGerenciarCadastro	
 	@Override
 	@PutMapping("/{restauranteId}/ativo")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
@@ -140,6 +148,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 		return ResponseEntity.noContent().build();
 	}
 	
+	@CheckSecurity.Restaurantes.PodeGerenciarCadastro	
 	@DeleteMapping("/{restauranteId}/ativo")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Override
@@ -148,6 +157,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 		return ResponseEntity.noContent().build();
 	}	
 	
+	@CheckSecurity.Restaurantes.PodeGerenciarCadastro	
 	@PutMapping("/ativacoes")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Override
@@ -160,6 +170,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 		}		
 	}
 	
+	@CheckSecurity.Restaurantes.PodeGerenciarCadastro	
 	@PutMapping("/inativacoes")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Override
@@ -172,6 +183,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 		}
 	}	
 	
+	@CheckSecurity.Restaurantes.PodeGerenciarCadastro	
 	@PutMapping("/{restauranteId}/abrir")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Override
@@ -180,6 +192,7 @@ public class RestauranteController implements RestauranteControllerOpenApi {
 		return ResponseEntity.noContent().build();
 	}
 	
+	@CheckSecurity.Restaurantes.PodeGerenciarCadastro	
 	@PutMapping("/{restauranteId}/fechar")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@Override

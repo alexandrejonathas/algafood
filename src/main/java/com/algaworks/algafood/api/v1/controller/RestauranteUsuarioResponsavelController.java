@@ -16,6 +16,7 @@ import com.algaworks.algafood.api.v1.AlgaLinksV1;
 import com.algaworks.algafood.api.v1.assembler.UsuarioModelAssembler;
 import com.algaworks.algafood.api.v1.model.UsuarioModel;
 import com.algaworks.algafood.api.v1.openapi.controller.RestauranteUsuarioResponsavelControllerOpenApi;
+import com.algaworks.algafood.core.security.AlgaSecurity;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.service.CadastroRestauranteService;
 
@@ -32,20 +33,26 @@ public class RestauranteUsuarioResponsavelController implements RestauranteUsuar
     @Autowired
     private AlgaLinksV1 algaLinksHelper;    
     
+    @Autowired
+    private AlgaSecurity algaSecurity;      
+    
     @Override
 	@GetMapping
     public CollectionModel<UsuarioModel> listar(@PathVariable Long restauranteId) {
         Restaurante restaurante = cadastroRestaurante.buscarOuFalhar(restauranteId);
         
         var usuariosModel = usuarioModelAssembler.toCollectionModel(restaurante.getResponsaveis())
-                .removeLinks()
-                .add(algaLinksHelper.linkToResponsaveisRestaurante(restauranteId))
-                .add(algaLinksHelper.linkToRestauranteResponsavelVincular(restauranteId, "vincular"));
+                .removeLinks();
+        usuariosModel.add(algaLinksHelper.linkToResponsaveisRestaurante(restauranteId));
         
-        usuariosModel.getContent().stream().forEach(usuarioModel -> {
-            usuarioModel.add(algaLinksHelper.linkToRestauranteResponsavelDesvincular(
-                    restauranteId, usuarioModel.getId(), "desassociar"));
-        });        
+        if (algaSecurity.podeGerenciarCadastroRestaurantes()) {
+        	usuariosModel.add(algaLinksHelper.linkToRestauranteResponsavelVincular(restauranteId, "vincular"));
+	        
+	        usuariosModel.getContent().stream().forEach(usuarioModel -> {
+	            usuarioModel.add(algaLinksHelper.linkToRestauranteResponsavelDesvincular(
+	                    restauranteId, usuarioModel.getId(), "desassociar"));
+	        });        
+        }
         
         return usuariosModel;
     }
