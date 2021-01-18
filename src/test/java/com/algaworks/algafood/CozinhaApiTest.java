@@ -64,7 +64,7 @@ public class CozinhaApiTest {
 	}
 	
 	@Test
-	public void deveQuantidadeCorretaDeCozinhas_QuandoConsultarCozinhas() {
+	public void deveRetornarQuantidadeCorretaDeCozinhas_QuandoConsultarCozinhas() {
 		RestAssured.given()
 			.accept(ContentType.JSON)
 		.when()

@@ -141,7 +141,7 @@ public class PedidoController implements PedidoControllerOpenApi {
 	
 	private Pageable traduzirPageable(Pageable pageable) {
 		var fields = Map.of(
-				"codigo", "codifo",
+				"codigo", "codigo",
 				"restaurante.nome", "restaurante.nome",
 				"nomeCliente", "cliente.nome",
 				"valorTotal", "valorTotal"
