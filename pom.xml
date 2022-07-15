@@ -30,7 +30,7 @@
     	
     	<jasperreports.version>6.13.0</jasperreports.version>
     	
-    	<aws-s3-sdk.version>1.11.839</aws-s3-sdk.version>
+    	<aws-s3-sdk.version>1.12.261</aws-s3-sdk.version>
     	
     	<spring-fox.version>2.9.2</spring-fox.version>
     	
